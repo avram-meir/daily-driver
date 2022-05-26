@@ -145,7 +145,7 @@ until [ $date -gt $stopdate ] ; do
 
 		for fil in "${files[@]}" ; do
 			filename="${archive}/${fil}"
-			filename=$(date +"${filename}" --d "${date}")
+			filename=$(date +"${filename}" --date "${date}")
 
 			if ! [ -s $filename ] ; then
 				update=1
@@ -167,11 +167,18 @@ until [ $date -gt $stopdate ] ; do
 		# Do something with $failed if things go wrong
 
 	else
-		printf "Archive complete for %s\n" $date
+		printf "Archive already complete for %s\n" $date
 	fi
 
 	date=$(date +%Y%m%d --date "$date+1day")
 done
+
+if [ $failed -ne 0 ] ; then
+	printf "There were errors detected on %d days\n" $failed >&2
+	exit 1
+else
+	printf "No errors detected\n"
+fi
 
 exit 0
 
