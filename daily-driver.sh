@@ -16,12 +16,13 @@ usage() {
 	printf "   -d <date1 date2>  Date range to check and update in the archive\n"
 	printf "                     If -b option is also provided, the backfilling period\n"
 	printf "                     will be set prior to date1\n"
-	printf "   -h                Print this usage message and exit\n\n"
+	printf "   -h                Print this usage message and exit\n"
+	printf "   -l <filename>     List of dates to check\n\n"
 }
 
 # --- Process input args ---
 
-while getopts ":b:c:d:h" option; do
+while getopts ":b:c:d:hl:" option; do
 	case $option in
 		b)
 			back=("$OPTARG");;
@@ -32,6 +33,8 @@ while getopts ":b:c:d:h" option; do
 		h)
 			usage
 			exit 0;;
+		l)
+			listfile=("$OPTARG");;
 		:)
 			printf "Error: Option -%s requires a value\n" $OPTARG >&2
 			usage >&2
@@ -97,6 +100,50 @@ if ! [ -z "$back" ] ; then
 
 fi
 
+# --- Store range of dates into array ---
+
+date=$startdate
+
+until [ $date -gt $stopdate ] ; do
+	datelist+=("$date")
+	date=$(date +%Y%m%d --date "$date+1day")
+done
+
+# --- Get list of dates to update if provided ---
+
+if ! [ -z $listfile ] ; then
+
+	if [ -s $listfile ] ; then
+
+		# --- Execute the file as a bash script to pull in datelist ---
+
+		. $listfile
+
+		if [ -z "$missingdates" ] ; then
+			printf "No missingdates parameter found in %s\n" $listfile >&2
+		fi
+
+	else
+		printf "%s is empty or not created - skipping\n" $listfile
+	fi
+
+fi
+
+# --- Add missingdates to datelist ---
+
+for md in "${missingdates[@]}" ; do
+
+	if [[ ! " ${datelist[*]} " =~ " ${md} " ]]; then
+		datelist+=("$md")
+	fi
+
+done
+
+# --- Sort dates into ascending order ---
+
+IFS=$'\n' datelist=($(sort <<<"${datelist[*]}"))
+unset IFS
+
 # --- Get archive information from config file ---
 
 alwaysupdate=0
@@ -108,11 +155,6 @@ elif [ -s $config ] ; then  # Config file supplied
 	# --- Execute the file as a bash script to pull in expected variables ---
 
 	. $config
-
-	if [ -z "$archive" ] ; then
-		printf "No archive parameter found in %s\n" $config >&2
-		alwaysupdate=1
-	fi
 
 	if [ -z "$files" ] ; then
 		printf "No files parameter found in %s\n" $config >&2
@@ -127,25 +169,24 @@ fi
 
 # --- Loop through all days in the range defined by startdate and enddate ---
 
-printf "Scanning and updating archive from %s to %s\n" $startdate $stopdate
+printf "Scanning and updating archive for the specified dates\n"
 
 cd $(dirname "$0")
 
 failed=0
 date=$startdate
 
-until [ $date -gt $stopdate ] ; do
+for date in "${datelist[@]}" ; do
 	update=0
 
 	if [ $alwaysupdate -eq 1 ] ; then
 		update=1
 	else
 
-		# --- Scan archive for missing files ---
+	# --- Scan archive for missing files ---
 
 		for fil in "${files[@]}" ; do
-			filename="${archive}/${fil}"
-			filename=$(date +"${filename}" --date "${date}")
+			filename=$(date +"${fil}" --date "${date}")
 
 			if ! [ -s $filename ] ; then
 				update=1
@@ -158,25 +199,42 @@ until [ $date -gt $stopdate ] ; do
 	if [ $update -eq 1 ] ; then
 		printf "Updating archive for %s\n" $date
 
-		# ********************************
-		#                                *
-		# Do your wonderful stuff here!  *
-		#                                *
-		# ********************************
+#		***********************************
+#		*                                 *
+#		*   Do your amazing stuff here!   *
+#		*                                 *
+#		***********************************
 
-		# Do something with $failed if things go wrong
+		if [ $? -ne 0 ] ; then
+			((failed++))
+			printf "Something went wrong on %d\n" $date
+			baddays+=("$date")
+		fi
 
 	else
 		printf "Archive already complete for %s\n" $date
 	fi
 
-	date=$(date +%Y%m%d --date "$date+1day")
 done
 
 if [ $failed -ne 0 ] ; then
+
+	if ! [ -z $listfile ] ; then
+		printf "missingdates=(%s)\n" "${baddays[*]}" > $listfile
+	fi
+
 	printf "There were errors detected on %d days\n" $failed >&2
 	exit 1
 else
+
+	if ! [ -z $listfile ] ; then
+
+		if [ -e $listfile ] ; then
+			rm $listfile
+		fi
+
+	fi
+
 	printf "No errors detected\n"
 fi
 
