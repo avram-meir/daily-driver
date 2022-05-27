@@ -1,2 +1,2 @@
 # daily-driver
-A self healing daily driver bash script intended for running software that updates data archives
+A template driver script to update and maintain a daily archive of files 
