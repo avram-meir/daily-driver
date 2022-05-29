@@ -205,10 +205,46 @@ for date in "${datelist[@]}" ; do
 #		*                                 *
 #		***********************************
 
+		# --- Check return code for nonzero status (problems) ---
+
 		if [ $? -ne 0 ] ; then
 			((failed++))
 			printf "Something went wrong on %d\n" $date
+
+			# --- Assume any files created by problem run are corrupt and remove them ---
+
+			for fil in "${files[@]}" ; do
+				filename=$(date +"${fil}" --date "${date}")
+
+				if [ -s $filename ] ; then
+					rm -rf $filename
+				fi
+
+			done
+
 			baddays+=("$date")
+
+		else
+
+			# --- Check archive to ensure expected files got created ---
+
+			notfound=0
+
+			for fil in "${files[@]}" ; do
+				filename=$(date +"${fil}" --date "${date}")
+
+				if ! [ -s $filename ] ; then
+					printf "Error: %s not created\n" $filename >&2
+					notfound=1
+				fi
+
+			done
+
+			if [ $notfound -ne 0 ] ; then
+				((failed++))
+				baddays+=("$date")
+			fi
+
 		fi
 
 	else
