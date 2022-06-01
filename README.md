@@ -51,19 +51,10 @@ The entire functionality of daily-driver is governed by a bash script: `daily-dr
   <tr><th>Option</th><th>Description</th></tr>
   <tr><td>-b &lt;string&gt;</td><td>Pass a valid <a href="https://man7.org/linux/man-pages/man1/date.1.html">GNU date</a> delta (e.g., '-30 days' or '10 days ago') and the script will scan the archive described by the configuration file provided through the -c option for missing files for that many days before the earliest date supplied through the -d option. If no -c option is supplied, the script will [do what you set it up to do] for each of those days. If no -d option is supplied, the date delta will apply to today's date (e.g., ./daily-driver.sh -b '-30 days' will [do what you set it up to do] for the 30 days leading up to today's date and today as well).</td></tr>
   <tr><td>-c &lt;filename&gt;</td><td>Pass a configuration file that lists all of the expected files in the archive. When updating for a date, the script will check for the existence of these files. If they do not exist, then the script will [do what you set it up to do]. If they do exist, the script will do nothing and move to the next date in the list. See below for the required format of the configuration file.</td></tr>
-  <tr><td>-d &lt;date><br>&nbsp;&nbsp;&nbsp;&nbsp;or<br>-d &lt;date1 date2&gt;</td><td></td></tr>
-  <tr><td>-h</td><td></td></tr>
-  <tr><td>-l &lt;filename&gt;</td><td></td></tr>
+  <tr><td>-d &lt;date><br>&nbsp;&nbsp;&nbsp;&nbsp;or<br>-d &lt;date1 date2&gt;</td><td>Pass a date to update, or a start date and stop date to update for a range of days. The dates should be provided in a format understood by GNU date's --date option.</td></tr>
+  <tr><td>-h</td><td>Print a usage statement and exit.</td></tr>
+  <tr><td>-l &lt;filename&gt;</td><td>Pass a file containing a list of dates to update. Any dates where [what you set it up to do] fails will be written back to this file, while dates that have a successful run (or already have existing files in the archive defined by the -c option) will be removed from this file. This is a good way to keep track of gaps in your archives.</td></tr>
 </table>
-   -b <string>       Backfill period (valid date delta, e.g., '-30 days')
-   -c <filename>     Configuration file listing archive files to check
-   -d <date>         Date to check and update in the archive
-       or
-   -d <date1 date2>  Date range to check and update in the archive
-                     If -b option is also provided, the backfilling period
-                     will be set prior to date1
-   -h                Print this usage message and exit
-   -l <filename>     List of dates to check
 
 ## Roadmap
 
