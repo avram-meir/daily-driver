@@ -199,11 +199,13 @@ for date in "${datelist[@]}" ; do
 	if [ $update -eq 1 ] ; then
 		printf "Updating archive for %s\n" $date
 
-#		***********************************
-#		*                                 *
-#		*   Do your amazing stuff here!   *
-#		*                                 *
-#		***********************************
+#		***************************************
+#		*                                     *
+#		*   Your amazing stuff happens here   *
+#		*                                     *
+#		***************************************
+
+		./update-archives.sh -d $date
 
 		# --- Check return code for nonzero status (problems) ---
 
