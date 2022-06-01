@@ -79,11 +79,38 @@ These are the options available for `daily-driver.sh`.
 
 **Archive configuration file (what you pass with `-c`)**
 
+The file passed using this option must provide a bash variable `$files` that contains a list of the archive files you want `daily-driver.sh` to check for. As this file is executed by `daily-driver.sh`, any bash script formatting can be used to set up this list. Each file in the list is passed to the GNU date command via [+FORMAT], so date [FORMAT wildcards](https://man7.org/linux/man-pages/man1/date.1.html) can be used in the filename. So, for example, if your configuration file contained the following:
+
+```Shell
+archive_path='/path/to/archive'
+files=${archive_path}/%Y/%m/%d/file1.txt
+files+=${archive_path}/%Y/%m/%d/file2.txt
+```
+
+And you ran `./daily-driver.sh -c /your/config/file -d 20220501`, then the script would check for the following files:
+
+```
+/path/to/archive/2022/05/01/file1.txt
+/path/to/archive/2022/05/01/file2.txt
+```
+
+And would run `update-archives.sh` to try and create these files if they were not there.
+
 **Missing date list file (what you pass with `-l`)**
+
+The file passed using this option must provide a bash variable `$missingdates` that contains a list of the dates that you want `update-archives.sh` to check and run. This file need not exist, and if dates where archive updating fails occur during run time, they will get written to this file, overwriting whatever was there before. Note that this file is executed as a bash script by `daily-driver.sh`, so any bash script formatting works.
+
+An example file created by `daily-driver.sh` when it tried and failed to update an archive for the first five days of May, 2022:
+
+```
+missingdates=(20220501 20220502 20220503 20220504 20220505)
+```
 
 #### Archive updating script
 
 The driver script `daily-driver.sh` calls a second script, `update-archives.sh` and passes it a date argument (`-d <date>`). In this template, the script does nothing functional, but this is where you add your own functionality when building a project from this template. If you pass a `-c` argument to `daily-driver.sh`, `update-archives.sh` should be written to create or update those archive files.
+
+Here is where you'll likely be adding your project's awesomeness to the README.
 
 ## Roadmap
 
