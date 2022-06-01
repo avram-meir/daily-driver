@@ -37,7 +37,7 @@ See [Git - Installing git](https://git-scm.com/book/en/v2/Getting-Started-Instal
 
 ## Usage
 
-This section provides information about how to use the dauily-driver application. Update and modify this for your own software project.
+This section provides information about how to use the daily-driver application. Update and modify this for your own software project.
 
 ### How to run
 
