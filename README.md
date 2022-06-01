@@ -4,7 +4,7 @@ A template driver script to update and maintain a daily archive of files
 
 ## About
 
-This README serves two purposes: to describe the template daily-driver script and how to use it, and to serve as a sample README for your own projects that you start using daily-driver as a template.
+This README serves two purposes: to describe the template daily-driver script and how to use it, and to serve as a sample README for your own projects that you start using daily-driver as a template. The daily-driver template provides a script that is useful for running software that updates or maintains archives of data organized by date. If you have code that takes a date argument and then creates or updates a set of files, and you want to run this code automatically (e.g., as a cron job) with self-healing capabilities to keep track of gaps in the archive to try and fill later, than this project is for you.
 
 ### Built With
 
@@ -12,6 +12,8 @@ This README serves two purposes: to describe the template daily-driver script an
 * Add other software you use in your project
 
 ## Getting Started
+
+This section provides information for how to get daily-driver set up and working on your system. Add additional content based on the project you build from this template!
 
 ### Environment
 
@@ -31,21 +33,38 @@ See [Git - Installing git](https://git-scm.com/book/en/v2/Getting-Started-Instal
 ```
      git clone git@github.com:avram-meir/daily-driver.git
 ```
-2. Do any other stuff that you need to do to get this installed.
+2. Nothing else needs to be done to get daily-driver working, but add any additional installation instructions here for your own project.
 
 ## Usage
 
-This is the meat and bones of the README. Add stuff here on how to set up and run the application and how to make it do useful and productive things.
+This section provides information about how to use the dauily-driver application. Update and modify this for your own software project.
 
 ### How to run
 
 #### Driver script
 
-The entire functionality of daily-driver is governed by a bash script: `daily-driver.sh`. This script can be run on [cron](https://man7.org/linux/man-pages/man5/crontab.5.html) to update your favorite date-based archives with new data, while taking steps to ensure the archives are as complete as possible.
+The entire functionality of daily-driver is governed by a bash script: `daily-driver.sh`. This script can be run on [cron](https://man7.org/linux/man-pages/man5/crontab.5.html) to update your date-based archives with new data, once you modify its child script `update-archives.sh` to do what you want it to do.
 
-**Usage:** `./daily-driver.sh [options]`
+Features of `daily-driver.sh`:
+* Run with no arguments, will run `update-archives.sh` passing it today's date via a `-d` option (e.g., ``update-archives.sh -d "`date +%Y%m%d`"``).
+* To run different dates or a range of dates, supply a `-d` option.
+* To have `daily-driver.sh` check your archives for a set of expected files and only run `update-archives.sh` for dates when those files are not there, supply a `-c` option.
+* To have `daily-driver.sh` check and update the archives (or just run `update-archives.sh`) for a number of days prior to the earliest date in its list, supply a `-b` option.
+* To keep track of dates where archive files fail to update or `update-archives.sh` returns a non-zero status (failure), supply a `-l` option.
 
-**Options:**
+As an example of how to use this script, consider this crontab entry:
+
+```
+0 0 * * * /path/to/daily-driver/daily-driver.sh -c /path/to/daily-driver/archive.config -b "-30 days" -l /path/to/daily-driver/missing_dates.txt
+```
+
+This usage would, daily at midnight, check the archives for missing files for the 30 days prior to today's date, today's date, and any dates in `/path/to/daily-driver/missing_dates.txt`, running `update-archives.sh` for any dates where missing files are found. The result of `update-archives.sh` would be checked as well as the archive to make sure the files got created, and any dates with problems or missing files would be written back to `/path/to/daily-driver/missing_dates.txt` for the next day's run.  
+
+**Usage**
+
+`./daily-driver.sh [options]`
+
+**Options**
 
 <table>
   <tr><th>Option&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th>Description</th></tr>
@@ -55,6 +74,14 @@ The entire functionality of daily-driver is governed by a bash script: `daily-dr
      <tr><td><code>-h</code></td><td>Print a usage statement and exit.</td></tr>
      <tr><td><code>-l &lt;filename&gt;</code></td><td>Pass a file containing a list of dates to update. Any dates where [what you set it up to do] fails will be written back to this file, while dates that have a successful run (or already have existing files in the archive defined by the -c option) will be removed from this file. This is a good way to keep track of gaps in your archives.</td></tr>
 </table>
+
+**Archive configuration file (what you pass with `-c`)**
+
+**Missing date list file (what you pass with `-l`)**
+
+#### Archive updating script
+
+The driver script `daily-driver.sh` calls a second script, `update-archives.sh` and passes it a date argument (`-d <date>`). In this template, the script does nothing functional, but this is where you add your own functionality when building a project from this template. If you pass a `-c` argument to `daily-driver.sh`, `update-archives.sh` should be written to create or update those archive files.
 
 ## Roadmap
 
