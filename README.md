@@ -4,7 +4,7 @@ A template driver script to update and maintain a daily archive of files
 
 ## About
 
-This README serves two purposes: to describe the template daily-driver script and how to use it, and to serve as a sample README for your own projects that you create using daily-driver as a template. The daily-driver template provides a script that is useful for running software that updates or maintains archives of data organized by date. If you have code that takes a date argument and then creates or updates a set of files, and you want to run this code automatically (e.g., as a cron job) with self-healing capabilities to keep track of gaps in the archive to try and fill later, than this project is for you.
+This README serves two purposes: to describe the template daily-driver script and how to use it, and to serve as a sample README for your own projects that you create using daily-driver as a template. The daily-driver template provides a script that is useful for running software that updates or maintains archives of data organized by date. If you want to write code that takes a date argument and then creates or updates a set of files, and you want to run this code automatically (e.g., as a cron job) with self-healing capabilities to keep track of gaps in the archive to try and fill in later runs, than this template is for you.
 
 ### Built With
 
@@ -13,7 +13,7 @@ This README serves two purposes: to describe the template daily-driver script an
 
 ## Getting Started
 
-This section provides information for how to get daily-driver set up and working on your system. Add additional content based on the project you build from this template!
+This section provides information for how to get daily-driver set up and working on your system. Be sure to add additional content based on the project you build from this template!
 
 ### Environment
 
